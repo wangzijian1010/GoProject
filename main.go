@@ -1,5 +1,7 @@
 package main
 
+// 测试通过
+
 import "github.com/gin-gonic/gin"
 
 func main() {
