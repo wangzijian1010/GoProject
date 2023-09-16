@@ -7,6 +7,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 type person struct {
@@ -88,7 +89,93 @@ type Student struct {
 	speciality string
 }
 
+// method的实现
+// method的实例
+// 类似C++的构造函数
+
+type Rectangle struct {
+	width, height float64
+}
+
+type Circle struct {
+	radius float64
+}
+
+func (r Rectangle) area() float64 {
+	return r.width * r.height
+}
+
+func (c Circle) area() float64 {
+	return c.radius * c.radius * math.Pi
+}
+
+//
+const (
+	WHITE = iota
+	BLACK
+	BLUE
+	RED
+	YELLOW
+)
+
+type Color byte
+
+type Box struct {
+	width, height, depth float64
+	color                Color
+}
+
+type BoxList []Box // a slice of boxes
+
+func (b *Box) SetColor(c Color) {
+	b.color = c
+}
+func (b Box) Volume() float64 {
+	return b.width * b.height * b.depth
+}
+
+func (bl BoxList) BiggestsColor() Color {
+	v := 0.00
+	k := Color(WHITE)
+	for _, b := range bl {
+		if b.Volume() > v {
+			v = b.Volume()
+			k = b.color
+		}
+	}
+	return k
+}
+
+type Human1 struct {
+	name  string
+	age   int
+	phone string
+}
+
+type Student1 struct {
+	// 继承human结构体
+	Human1
+	school string
+	loan   float32
+}
+
+type Employee struct {
+	Human1
+	company string
+	money   float32
+}
+
+// Human实现sayhi方法
+func (h *Human1) SayHi() {
+	fmt.Printf("Hi, I am %s you can call me on %s\n", h.name, h.phone)
+}
+
+func (h *Human1) Sing() {
+	fmt.Println("La la, la la la, la la la la la...")
+}
+
 func main() {
+
 	fmt.Printf("Hello, world or 你好，世界 or καλημ ́ρα κóσμ or こんにちは世界\n")
 
 	// 定义变量
@@ -227,5 +314,13 @@ func main() {
 	// 初始化结构体中的结构体
 	mark := Student{Human{"wangzijian", 25, 120}, "computer science"}
 	fmt.Println("His name is ", mark.name)
+
+	r1 := Rectangle{12, 2}
+	r2 := Rectangle{13, 3}
+	c2 := Circle{22}
+
+	fmt.Println("Area of r1 is: ", r1.area())
+	fmt.Println("Area of r2 is: ", r2.area())
+	fmt.Println("Area of c2 is: ", c2.area())
 
 }
