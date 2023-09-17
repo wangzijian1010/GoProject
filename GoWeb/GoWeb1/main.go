@@ -66,11 +66,38 @@ func loginSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	// 检查密码是否匹配
 	if storedPassword == password {
 		// 登录成功
-		fmt.Fprintf(w, "Hello, %s!\n", username)
-		fmt.Fprintf(w, "Your password is: %s\n", password)
+		// http的重定向函数定位到登录成功界面
+		http.Redirect(w, r, "/login-success?username="+username, http.StatusSeeOther)
 	} else {
 		// 密码错误
 		http.Error(w, "密码错误，请重新输入", http.StatusUnauthorized)
+	}
+}
+
+// 创建login成功的处理函数
+// 处理登录成功后的页面显示
+func loginSuccessHandler(w http.ResponseWriter, r *http.Request) {
+	// 获取用户名
+	username := r.URL.Query().Get("username")
+
+	// 渲染登录成功页面
+	tmpl, err := template.ParseFiles("login_success.html")
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Username string
+	}{
+		Username: username,
+	}
+
+	if err := tmpl.Execute(w, data); err != nil {
+		log.Fatal(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -90,6 +117,7 @@ func main() {
 	// 在 main 函数中添加以下路由
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/login-submit", loginSubmitHandler)
+	http.HandleFunc("/login-success", loginSuccessHandler)
 
 	// 启动服务器
 	port := ":8080"
@@ -106,6 +134,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, `<a href="/register">Go to Registration</a>`)
 }
 
+// 注册页面处理函数
 // 注册页面处理函数
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
@@ -135,8 +164,39 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// 将数据插入数据库
-		_, err := db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, password)
+		// 连接到数据库
+		db, err := sql.Open("mysql", "root:123456@tcp(localhost:3306)/test")
+		if err != nil {
+			log.Fatal(err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		// 查询数据库以检查是否已经存在相同的用户名
+		var count int
+		err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username=?", username).Scan(&count)
+		if err != nil {
+			// 处理查询错误
+			log.Println(err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		if count > 0 {
+			// 用户名已经存在，显示错误消息
+			tmpl, err := template.ParseFiles("D:\\gopro\\GoWeb\\GoWeb1\\error.html")
+			if err != nil {
+				log.Fatal(err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+			tmpl.Execute(w, "用户名已经存在，请选择另一个用户名")
+			return
+		}
+
+		// 如果用户名不存在，将数据插入数据库
+		_, err = db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, password)
 		if err != nil {
 			log.Fatal(err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -159,5 +219,4 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		tmpl.Execute(w, data)
 	}
-
 }
