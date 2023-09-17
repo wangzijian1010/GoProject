@@ -33,31 +33,33 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // 处理登录表单提交
+// 处理登录表单提交
 func loginSubmitHandler(w http.ResponseWriter, r *http.Request) {
-	// 处理登录逻辑
-	// 检查用户名和密码是否匹配
-	// 如果匹配，执行登录操作
-	// 如果不匹配，显示错误信息或重定向到错误页面
+	// 从表单获取用户名和密码
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	// 连接数据库
-	db, err := sql.Open("mysql", "root:123456@tcp(localhost:3306)/test")
 
+	// 连接到数据库
+	db, err := sql.Open("mysql", "root:123456@tcp(localhost:3306)/test")
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
 	defer db.Close()
 
 	// 查询数据库以验证用户名和密码
 	var storedPassword string
 	err = db.QueryRow("SELECT password FROM users WHERE username=?", username).Scan(&storedPassword)
 	if err != nil {
-		// 处理查询错误
-		log.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if err == sql.ErrNoRows {
+			// 用户不存在
+			http.Error(w, "此用户不存在，请注册", http.StatusUnauthorized)
+		} else {
+			// 处理查询错误
+			log.Println(err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -67,10 +69,9 @@ func loginSubmitHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello, %s!\n", username)
 		fmt.Fprintf(w, "Your password is: %s\n", password)
 	} else {
-		// 登录失败
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		// 密码错误
+		http.Error(w, "密码错误，请重新输入", http.StatusUnauthorized)
 	}
-
 }
 
 func main() {
