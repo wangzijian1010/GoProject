@@ -9,6 +9,8 @@ import (
 
 // Manager 定义接口，接口里面用来声明操作数据库的函数
 type Manager interface {
+	// Register 定义用户操作的函数
+	Register(user *model.User)
 }
 
 //封装数据库的db，将db变成manager，对数据库操作的db换成了manager
@@ -31,7 +33,7 @@ func init() {
 	//实例化manager，将Mgr关联到数据库，可以让Mgr对数据库进行操作
 	Mgr = &manager{db: db}
 	//AutoMigrate作用：让数据库自动创建表
-	err = db.AutoMigrate(&model.User{})
+	err = db.AutoMigrate(&model.User{}) //创建用户表
 	if err != nil {
 		return
 	}
