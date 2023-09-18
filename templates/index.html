@@ -1,10 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>主页</title>
+    <title>Water Effect</title>
+    <style>
+        body {
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .water {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('wallpaper1.jpg');
+            background-repeat: repeat;
+            opacity: 0.5;
+            animation: waterFlow 15s linear forwards;
+        }
+
+        @keyframes waterFlow {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 0 100%;
+            }
+        }
+
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 24px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
-    hello world,主页
+<div class="water"></div>
+<div class="content">
+    Hello, World!
+</div>
 </body>
 </html>

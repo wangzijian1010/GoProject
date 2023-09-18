@@ -6,12 +6,14 @@ import (
 )
 
 func Start() {
+	// 固定写法
 	r := gin.Default()
 
 	//加载静态资源文件
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 
+	// get index.html文件
 	r.GET("/", controller.Index)
 
 	//router group 以下是路由组

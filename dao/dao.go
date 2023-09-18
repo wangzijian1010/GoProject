@@ -24,7 +24,7 @@ var Mgr Manager
 // 初始化数据库
 func init() {
 	//数据库mysql用户名:mysql密码@tcp(本地端口号)/数据库名称?charset=utf8mb4&parseTime=True&loc=Local
-	dsn := "root:123456@tcp(127.0.0.1)/go_blog_v1?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:123456@tcp(127.0.0.1)/test?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to init db:", err)
